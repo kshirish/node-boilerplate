@@ -11,6 +11,8 @@ $ NODE_ENV = Production node app.js
 
 - `res.locals` is a place to store the data which lasts only till the request.
 
+- However you cannot access local variables in middleware though you can  access local variables in templates rendered within the application. This is useful for providing helper functions to templates, as well as app-level data.
+
 - Subapp is an additional instance of express created to handle the routing part which is often the most complicated one. 
 
 ```js
@@ -57,4 +59,33 @@ app.use(function (req, res, next) {
 })
 ```
 
+- Series of middlewares
+```js
+function mw1(req, res, next) { console.log('mw1'); next(); }
+function mw2(req, res, next) { console.log('mw2'); next(); }
 
+var r1 = express.Router();
+r1.get('/', function (req, res, next) { console.log('r1'); next(); });
+
+var r2 = express.Router();
+r2.get('/', function (req, res, next) { console.log('r2'); next(); });
+
+var subApp = express();
+subApp.get('/', function (req, res, next) { console.log('subapp'); next(); });
+
+// executes the callbacks in the provided order
+app.use('/someRoute', mw1, [mw2, r1, r2], subApp);
+```
+
+- An error-handling middleware is same as other middlewares, except with four arguments instead of three.
+```js
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
+});
+```
+
+- Express uses the `debug` module internally to log information about route matches, middleware in use, application mode, and the flow of the request-response cycle.
+```js
+$ DEBUG=express:* node index.js
+```
