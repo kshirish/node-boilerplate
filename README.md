@@ -89,3 +89,21 @@ app.use(function(err, req, res, next) {
 ```js
 $ DEBUG=express:* node index.js
 ```
+
+- In HTTP, the `Content-Disposition`: attachment response header is usually used to hint to the client to present the response body as a downloadable file. Typically, when receiving such a response, a Web browser will prompt the user to save its content as a file instead of displaying it as a page in a browser window, with the filename parameter suggesting the default file name (this is useful for dynamically generated content, where deriving the filename from the URL may be meaningless or confusing to the user).
+```js
+// now this is how we do it in Express
+
+res.attachment();
+// Content-Disposition: attachment
+
+res.attachment('path/to/logo.png');
+// Content-Disposition: attachment; filename="logo.png"
+// Content-Type: image/png
+
+```
+
+- Now, the above `res.attachment` basically just sets the `header`, you have to `res.send` the file as well. But you're in luck, express got a helper for you. 
+```js
+res.download('/akugvks-ygksyug-reyyrt7tr74.pdf', 'payslip.pdf');
+```
